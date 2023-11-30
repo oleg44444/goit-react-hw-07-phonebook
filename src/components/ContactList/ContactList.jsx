@@ -1,21 +1,21 @@
+// ContactList.js
 import React from 'react';
 import style from './ContactList.module.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { delContact } from 'redux/contactsSlice';
-import { selectContacts, selectFilter } from 'redux/contactsSlice';
+import { selectFilter } from 'redux/filterSlice';
+import { useSelector } from 'react-redux';
+import {
+  useGetContactsQuery,
+  useDeleteContactMutation,
+} from 'redux/contactsSlice';
 
 const ContactList = () => {
-  const dispatch = useDispatch();
+  const { data } = useGetContactsQuery();
+  const [deleteContact, { isLoading }] = useDeleteContactMutation();
   const filterItems = useSelector(selectFilter);
-  const contactsList = useSelector(selectContacts);
-
-  const deleteContact = id => {
-    dispatch(delContact(id));
-  };
 
   const normalizedFilter = filterItems.toLowerCase();
 
-  const filteredContacts = contactsList.filter(contact =>
+  const filteredContacts = (data || []).filter(contact =>
     contact.name.toLowerCase().includes(normalizedFilter)
   );
 
@@ -28,14 +28,16 @@ const ContactList = () => {
           </p>
           <button
             type="button"
-            onClick={() => deleteContact(id)}
+            onClick={() => deleteContact({ id })}
             className={style.deleteButton}
+            disabled={isLoading}
           >
-            Delete
+            Видалити
           </button>
         </li>
       ))}
     </ul>
   );
 };
+
 export default ContactList;
